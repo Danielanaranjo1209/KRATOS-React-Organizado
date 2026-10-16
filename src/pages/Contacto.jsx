@@ -1,29 +1,19 @@
-
-import { useState, useContext } from "react";
+import { useState } from "react";
+import { useFormularioContext } from "../context/FormularioContex.jsx";
 import FormularioContacto from "../components/FormularioContacto.jsx";
 import ResumenFormulario from "../components/ResumenFormulario.jsx";
-import { FormularioContext } from "../context/FormularioContex.jsx";
-
-
 
 function Contacto() {
-  const { formulario, setFormulario } =
-    useContext(FormularioContext);
+  const { estado, dispatch } = useFormularioContext();
+  const formulario = estado.contacto;
 
   const [errores, setErrores] = useState({});
   const [enviado, setEnviado] = useState(false);
- 
 
-
-
-  // Gestionar los cambios de los campos.
   const manejarCambio = (e) => {
     const { name, value } = e.target;
 
-    setFormulario((estadoAnterior) => ({
-      ...estadoAnterior,
-      [name]: value
-    }));
+    dispatch({ type: "ACTUALIZAR_CONTACTO", campo: name, valor: value });
 
     setEnviado(false);
 
@@ -35,7 +25,6 @@ function Contacto() {
     }
   };
 
-  // Validar los datos ingresados.
   const validarFormulario = () => {
     const nuevosErrores = {};
 
@@ -67,11 +56,11 @@ function Contacto() {
     return nuevosErrores;
   };
 
-  // Gestionar el envío del formulario.
   const manejarEnvio = (e) => {
     e.preventDefault();
 
     const nuevosErrores = validarFormulario();
+
     setErrores(nuevosErrores);
 
     if (Object.keys(nuevosErrores).length > 0) {
@@ -82,23 +71,16 @@ function Contacto() {
     setEnviado(true);
   };
 
-  // Limpiar los campos cuando se solicita registrar otra solicitud.
   const limpiarFormulario = () => {
-    const formularioVacio = {
-      nombre: "",
-      correo: "",
-      telefono: "",
-      mensaje: ""
-    };
+    dispatch({ type: "LIMPIAR_CONTACTO" });
 
-    setFormulario(formularioVacio);
     setErrores({});
     setEnviado(false);
-
   };
 
   return (
     <section className="contact-page">
+
       <div className="page-intro">
         <span className="section-kicker">
           FORMULARIOS · REACT
@@ -114,6 +96,7 @@ function Contacto() {
       </div>
 
       <div className="contact-grid">
+
         <FormularioContacto
           formulario={formulario}
           errores={errores}
@@ -125,14 +108,21 @@ function Contacto() {
           formulario={formulario}
           enviado={enviado}
         />
+
       </div>
 
       {enviado && (
         <div className="success-message">
-          <div className="success-icon">✓</div>
+
+          <div className="success-icon">
+            ✓
+          </div>
 
           <div>
-            <h2>¡Gracias, {formulario.nombre}!</h2>
+
+            <h2>
+              ¡Gracias, {formulario.nombre}!
+            </h2>
 
             <p>
               Hemos recibido correctamente tu información.
@@ -146,9 +136,12 @@ function Contacto() {
             >
               Registrar otra solicitud
             </button>
+
           </div>
+
         </div>
       )}
+
     </section>
   );
 }
